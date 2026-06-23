@@ -1,0 +1,14 @@
+# Normalise line endings; let Git decide text vs binary.
+* text=auto
+
+# Keep shell/PowerShell scripts and web sources LF for cross-platform tooling.
+*.ps1   text eol=crlf
+*.cs    text
+*.ts    text eol=lf
+*.svelte text eol=lf
+*.css   text eol=lf
+*.json  text
+*.owl   text eol=lf
+
+# Treat images as binary.
+*.png binary

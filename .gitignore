@@ -1,0 +1,19 @@
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+*.user
+.vs/
+
+# --- Node / Vite ---
+node_modules/
+dist/
+*.tsbuildinfo
+
+# --- Generated SPA bundle (built from client/ via run.ps1 or npm run build) ---
+server/wwwroot/
+
+# --- Tooling / OS ---
+.playwright-mcp/
+/*.png
+.DS_Store
+Thumbs.db

@@ -1,0 +1,35 @@
+import type { Ontology } from './types'
+
+async function asJson<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`
+    try {
+      const body = await res.json()
+      if (body?.error) detail = body.error
+    } catch {
+      /* ignore non-JSON error bodies */
+    }
+    throw new Error(detail)
+  }
+  return res.json() as Promise<T>
+}
+
+/** Load the ontology bundled with the project (ontology/Resource.owl). */
+export function loadDefaultOntology(): Promise<Ontology> {
+  return fetch('/api/ontology/default').then((r) => asJson<Ontology>(r))
+}
+
+/** Parse an OWL/RDF-XML file chosen by the user. */
+export function parseOntologyFile(file: File): Promise<Ontology> {
+  const url = `/api/ontology/parse?name=${encodeURIComponent(file.name)}`
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/rdf+xml' },
+    body: file,
+  }).then((r) => asJson<Ontology>(r))
+}
+
+/** Fetch the raw source of the bundled ontology (for the "view source" panel). */
+export function loadDefaultSource(): Promise<string> {
+  return fetch('/api/ontology/source').then((r) => r.text())
+}
