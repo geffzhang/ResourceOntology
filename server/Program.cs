@@ -38,6 +38,19 @@ app.UseStaticFiles();
 
 var parser = app.Services.GetRequiredService<OntologyParser>();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
+ 
+string? ResolveOntologyDir()
+{
+    var candidates = new[]
+    {
+        Path.Combine(app.Environment.ContentRootPath, "..", "ontology"),
+        Path.Combine(app.Environment.ContentRootPath, "ontology"),
+    };
+    foreach (var c in candidates)
+        if (Directory.Exists(c))
+            return Path.GetFullPath(c);
+    return null;
+}
 
 // Resolve the bundled ontology shipped with the project.
 string? ResolveDefaultOntology()
@@ -115,6 +128,24 @@ app.MapPost("/api/ontology/parse", async (HttpRequest request) =>
   .Produces(StatusCodes.Status400BadRequest);
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
+
+app.MapGet("/api/ontology/files", () =>
+{
+    var dir = ResolveOntologyDir();
+    if (dir == null)
+        return Results.Ok(new { files = Array.Empty<object>() });
+
+    var files = Directory.GetFiles(dir, "*.owl")
+        .Select(f => new
+        {
+            name = Path.GetFileName(f),
+            displayName = Path.GetFileNameWithoutExtension(f)
+        })
+        .OrderBy(f => f.displayName)
+        .ToList();
+
+    return Results.Ok(new { files });
+});
 
 // SPA fallback: any non-API route returns index.html so client-side routing works.
 app.MapFallbackToFile("index.html");
