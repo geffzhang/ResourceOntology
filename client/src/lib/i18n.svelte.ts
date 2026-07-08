@@ -83,7 +83,7 @@ function loadLocale(): Locale {
     const v = localStorage.getItem('ontology-lang')
     if (v === 'zh') return 'zh'
   } catch { /* localStorage unavailable */ }
-  return 'en'
+  return 'zh'
 }
 
 function saveLocale(lang: Locale) {

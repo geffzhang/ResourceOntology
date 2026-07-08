@@ -335,9 +335,18 @@ public class OntologyParser
     private static string LocalName(string iri)
     {
         var hash = iri.LastIndexOf('#');
-        if (hash >= 0 && hash < iri.Length - 1) return iri[(hash + 1)..];
-        var slash = iri.LastIndexOf('/');
-        if (slash >= 0 && slash < iri.Length - 1) return iri[(slash + 1)..];
-        return iri;
+        string name;
+        if (hash >= 0 && hash < iri.Length - 1)
+            name = iri[(hash + 1)..];
+        else {
+            var slash = iri.LastIndexOf('/');
+            if (slash >= 0 && slash < iri.Length - 1)
+                name = iri[(slash + 1)..];
+            else
+                return iri;
+        }
+        // .NET System.Uri percent-encodes non-ASCII characters (e.g. Chinese).
+        // Decode so the frontend displays human-readable names.
+        return Uri.UnescapeDataString(name);
     }
 }
