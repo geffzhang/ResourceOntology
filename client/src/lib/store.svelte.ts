@@ -1,4 +1,5 @@
 import type { Ontology, Selection, GraphFilters, OwlClass, OwlProperty, OwlIndividual } from './types'
+import type { OntologyFileEntry } from './api'
 
 export const store = $state({
   ontology: null as Ontology | null,
@@ -18,6 +19,10 @@ export const store = $state({
     typeOf: true,
     assertion: true,
   } as GraphFilters,
+  /** Available ontology files from the server directory. */
+  fileList: [] as OntologyFileEntry[],
+  /** Currently selected ontology file name (e.g. "Resource.owl"), or null if uploaded. */
+  currentFile: null as string | null,
 })
 
 let focusNonce = 0
