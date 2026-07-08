@@ -53,50 +53,7 @@ string? ResolveOntologyDir()
     return null;
 }
 
-// Resolve the bundled ontology shipped with the project.
-string? ResolveDefaultOntology()
-{
-    var configured = builder.Configuration["Ontology:DefaultPath"];
-    var candidates = new[]
-    {
-        configured,
-        Path.Combine(app.Environment.ContentRootPath, "..", "ontology", "Resource.owl"),
-        Path.Combine(app.Environment.ContentRootPath, "ontology", "Resource.owl"),
-        Path.Combine(AppContext.BaseDirectory, "ontology", "Resource.owl"),
-    };
-    foreach (var c in candidates)
-        if (!string.IsNullOrWhiteSpace(c) && File.Exists(c))
-            return Path.GetFullPath(c);
-    return null;
-}
-
-// Cache the default parse — the bundled ontology never changes at runtime.
-OntologyDto? defaultCache = null;
-
-OntologyDto? GetDefault()
-{
-    if (defaultCache != null) return defaultCache;
-    var path = ResolveDefaultOntology();
-    if (path == null) { logger.LogWarning("Default ontology not found."); return null; }
-    logger.LogInformation("Parsing default ontology: {Path}", path);
-    defaultCache = parser.ParseFile(path);
-    return defaultCache;
-}
-
-app.MapGet("/api/ontology/default", () =>
-{
-    var dto = GetDefault();
-    return dto is null
-        ? Results.NotFound(new { error = "Bundled ontology (ontology/Resource.owl) was not found." })
-        : Results.Ok(dto);
-}).Produces<OntologyDto>(StatusCodes.Status200OK)
-  .Produces(StatusCodes.Status404NotFound);
-
-app.MapGet("/api/ontology/source", () =>
-{
-    var path = ResolveDefaultOntology();
-    return path is null ? Results.NotFound() : Results.Text(File.ReadAllText(path), "application/xml");
-});
+// (Removed deprecated default/source endpoints and helpers)
 
 // Parse an uploaded ontology. Accepts the raw OWL/RDF-XML as the request body.
 app.MapPost("/api/ontology/parse", async (HttpRequest request) =>
