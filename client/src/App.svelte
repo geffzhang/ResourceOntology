@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { store } from './lib/store.svelte'
-  import { loadDefaultOntology, parseOntologyFile } from './lib/api'
+  import { parseOntologyFile, listOntologyFiles, loadOntology } from './lib/api'
   import GraphView from './lib/GraphView.svelte'
   import Sidebar from './lib/Sidebar.svelte'
   import DetailsPanel from './lib/DetailsPanel.svelte'
@@ -9,11 +9,21 @@
   let fileInput: HTMLInputElement
   let dragging = $state(false)
 
-  async function loadDefault() {
+  async function initFiles() {
+    try {
+      const res = await listOntologyFiles()
+      store.fileList = res.files
+    } catch {
+      store.fileList = []
+    }
+  }
+
+  async function selectFile(fileName: string) {
     store.loading = true
     store.error = null
+    store.currentFile = fileName
     try {
-      store.ontology = await loadDefaultOntology()
+      store.ontology = await loadOntology(fileName)
       store.selection = null
     } catch (e) {
       store.error = e instanceof Error ? e.message : String(e)
@@ -46,7 +56,12 @@
     if (f) loadFile(f)
   }
 
-  onMount(loadDefault)
+  onMount(async () => {
+    await initFiles()
+    if (store.fileList.length > 0) {
+      await selectFile(store.fileList[0].name)
+    }
+  })
 
   const stats = $derived(store.ontology?.stats)
   const chips = $derived(
@@ -97,10 +112,22 @@
     </div>
 
     <div class="ml-auto flex items-center gap-2">
-      <button
-        class="rounded-md border border-edge bg-canvas px-3 py-1.5 text-xs text-ink hover:bg-panel2"
-        onclick={loadDefault}>Load bundled ontology</button
-      >
+      {#if store.fileList.length > 0}
+        <select
+          class="rounded-md border border-edge bg-canvas px-3 py-1.5 text-xs text-ink outline-none hover:border-klass focus:border-klass"
+          value={store.currentFile ?? ''}
+          onchange={(e) => {
+            const val = (e.target as HTMLSelectElement).value
+            if (val) selectFile(val)
+          }}
+        >
+          {#each store.fileList as f}
+            <option value={f.name}>{f.displayName}</option>
+          {/each}
+        </select>
+      {:else}
+        <span class="text-xs text-muted">No ontology files found</span>
+      {/if}
       <button
         class="rounded-md bg-klass px-3 py-1.5 text-xs font-medium text-canvas hover:opacity-90"
         onclick={() => fileInput.click()}>Open OWL file…</button
