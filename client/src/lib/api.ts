@@ -33,3 +33,19 @@ export function parseOntologyFile(file: File): Promise<Ontology> {
 export function loadDefaultSource(): Promise<string> {
   return fetch('/api/ontology/source').then((r) => r.text())
 }
+
+/** File entry returned by GET /api/ontology/files. */
+export interface OntologyFileEntry {
+  name: string
+  displayName: string
+}
+
+/** List all .owl files in the server's ontology directory. */
+export function listOntologyFiles(): Promise<{ files: OntologyFileEntry[] }> {
+  return fetch('/api/ontology/files').then((r) => asJson<{ files: OntologyFileEntry[] }>(r))
+}
+
+/** Load a specific ontology file from the server's ontology directory. */
+export function loadOntology(fileName: string): Promise<Ontology> {
+  return fetch(`/api/ontology/load?file=${encodeURIComponent(fileName)}`).then((r) => asJson<Ontology>(r))
+}
