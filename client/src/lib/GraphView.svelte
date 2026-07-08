@@ -3,20 +3,21 @@
   import cytoscape from 'cytoscape'
   import { store, select } from './store.svelte'
   import { buildElements, cyStyle, makeLayout } from './graph'
+  import { t } from './i18n'
 
   let container: HTMLDivElement
   let cy: cytoscape.Core | undefined
   let layoutName = $state<'cose' | 'dagre' | 'concentric' | 'breadthfirst'>('cose')
   let lastFocusNonce = -1
 
-  const edgeLegend = [
-    { type: 'subClassOf', key: 'subClassOf', color: '#5b6784', label: 'sub-class of' },
-    { type: 'restriction', key: 'restriction', color: '#f472b6', label: 'restriction' },
-    { type: 'domainRange', key: 'domainRange', color: '#c084fc', label: 'object property' },
-    { type: 'disjoint', key: 'disjoint', color: '#f87171', label: 'disjoint with' },
-    { type: 'typeOf', key: 'typeOf', color: '#4ade80', label: 'instance of' },
-    { type: 'assertion', key: 'assertion', color: '#38bdf8', label: 'assertion' },
-  ] as const
+  const edgeLegend = $derived([
+    { type: 'subClassOf', key: 'subClassOf', color: '#5b6784', label: t('graph.subClassOf') },
+    { type: 'restriction', key: 'restriction', color: '#f472b6', label: t('graph.restriction') },
+    { type: 'domainRange', key: 'domainRange', color: '#c084fc', label: t('graph.objprop') },
+    { type: 'disjoint', key: 'disjoint', color: '#f87171', label: t('graph.disjoint') },
+    { type: 'typeOf', key: 'typeOf', color: '#4ade80', label: t('graph.instanceOf') },
+    { type: 'assertion', key: 'assertion', color: '#38bdf8', label: t('graph.assertion') },
+  ] as const)
 
   function runLayout() {
     cy?.layout(makeLayout(layoutName)).run()
@@ -94,28 +95,28 @@
     <select
       bind:value={layoutName}
       class="rounded-md border border-edge bg-panel/90 px-2 py-1 text-xs text-ink shadow-lg outline-none"
-      title="Graph layout"
+      title={t('graph.layout')}
     >
-      <option value="cose">Force layout</option>
-      <option value="dagre">Hierarchy (tree)</option>
-      <option value="concentric">Concentric</option>
-      <option value="breadthfirst">Breadth-first</option>
+      <option value="cose">{t('graph.force')}</option>
+      <option value="dagre">{t('graph.hierarchy')}</option>
+      <option value="concentric">{t('graph.concentric')}</option>
+      <option value="breadthfirst">{t('graph.breadthfirst')}</option>
     </select>
     <button
       class="rounded-md border border-edge bg-panel/90 px-2 py-1 text-xs text-ink shadow-lg hover:bg-panel2"
-      onclick={() => cy?.fit(undefined, 40)}>Fit</button
+      onclick={() => cy?.fit(undefined, 40)}>{t('graph.fit')}</button
     >
     <label class="flex items-center gap-1 rounded-md border border-edge bg-panel/90 px-2 py-1 text-xs shadow-lg">
-      <input type="checkbox" bind:checked={store.filters.showClasses} /> Classes
+      <input type="checkbox" bind:checked={store.filters.showClasses} /> {t('graph.showClasses')}
     </label>
     <label class="flex items-center gap-1 rounded-md border border-edge bg-panel/90 px-2 py-1 text-xs shadow-lg">
-      <input type="checkbox" bind:checked={store.filters.showIndividuals} /> Individuals
+      <input type="checkbox" bind:checked={store.filters.showIndividuals} /> {t('graph.showIndividuals')}
     </label>
   </div>
 
   <!-- Interactive edge legend / toggles -->
   <div class="absolute bottom-3 left-3 rounded-lg border border-edge bg-panel/90 p-2 text-xs shadow-lg backdrop-blur">
-    <div class="mb-1 font-semibold text-muted">Relationships</div>
+    <div class="mb-1 font-semibold text-muted">{t('graph.legend')}</div>
     <div class="grid grid-cols-1 gap-1">
       {#each edgeLegend as e}
         <label class="flex cursor-pointer items-center gap-2">
