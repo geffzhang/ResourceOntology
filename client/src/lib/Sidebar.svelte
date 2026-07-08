@@ -1,5 +1,6 @@
 <script lang="ts">
   import { store, select, prettify } from './store.svelte'
+  import { t } from './i18n'
   import type { OwlClass } from './types'
 
   let tab = $state<'hierarchy' | 'classes' | 'properties' | 'individuals'>('hierarchy')
@@ -38,10 +39,10 @@
   const isSelected = (id: string) => store.selection?.id === id
 
   const tabs = [
-    { id: 'hierarchy', label: 'Hierarchy' },
-    { id: 'classes', label: 'Classes' },
-    { id: 'properties', label: 'Properties' },
-    { id: 'individuals', label: 'Instances' },
+    { id: 'hierarchy', label: t('sidebar.hierarchy') },
+    { id: 'classes', label: t('sidebar.classes') },
+    { id: 'properties', label: t('sidebar.properties') },
+    { id: 'individuals', label: t('sidebar.instances') },
   ] as const
 </script>
 
@@ -83,7 +84,7 @@
   <div class="border-b border-edge p-2">
     <input
       type="search"
-      placeholder="Search entities…"
+      placeholder={t('sidebar.search')}
       bind:value={store.search}
       class="w-full rounded-md border border-edge bg-canvas px-2 py-1.5 text-sm text-ink outline-none focus:border-klass"
     />
@@ -106,7 +107,7 @@
   <div class="flex-1 overflow-y-auto p-2">
     {#if tab === 'hierarchy'}
       {#if q}
-        <p class="mb-2 px-1 text-xs text-muted">Showing all classes matching “{store.search}”. Clear search to see the tree.</p>
+        <p class="mb-2 px-1 text-xs text-muted">{t('sidebar.searchHint').replace('{q}', store.search)}</p>
         {#each filteredClasses as c (c.id)}
           <button
             class="block w-full truncate rounded px-2 py-1 text-left text-sm hover:bg-panel2"
