@@ -3,21 +3,24 @@
   import cytoscape from 'cytoscape'
   import { store, select } from './store.svelte'
   import { buildElements, cyStyle, makeLayout } from './graph'
-  import { t } from './i18n'
+  import { t, locale } from './i18n'
 
   let container: HTMLDivElement
   let cy: cytoscape.Core | undefined
   let layoutName = $state<'cose' | 'dagre' | 'concentric' | 'breadthfirst'>('cose')
   let lastFocusNonce = -1
 
-  const edgeLegend = $derived([
-    { type: 'subClassOf', key: 'subClassOf', color: '#5b6784', label: t('graph.subClassOf') },
-    { type: 'restriction', key: 'restriction', color: '#f472b6', label: t('graph.restriction') },
-    { type: 'domainRange', key: 'domainRange', color: '#c084fc', label: t('graph.objprop') },
-    { type: 'disjoint', key: 'disjoint', color: '#f87171', label: t('graph.disjoint') },
-    { type: 'typeOf', key: 'typeOf', color: '#4ade80', label: t('graph.instanceOf') },
-    { type: 'assertion', key: 'assertion', color: '#38bdf8', label: t('graph.assertion') },
-  ] as const)
+  const edgeLegend = $derived.by(() => {
+    void locale // track locale changes for reactivity
+    return [
+      { type: 'subClassOf', key: 'subClassOf', color: '#5b6784', label: t('graph.subClassOf') },
+      { type: 'restriction', key: 'restriction', color: '#f472b6', label: t('graph.restriction') },
+      { type: 'domainRange', key: 'domainRange', color: '#c084fc', label: t('graph.objprop') },
+      { type: 'disjoint', key: 'disjoint', color: '#f87171', label: t('graph.disjoint') },
+      { type: 'typeOf', key: 'typeOf', color: '#4ade80', label: t('graph.instanceOf') },
+      { type: 'assertion', key: 'assertion', color: '#38bdf8', label: t('graph.assertion') },
+    ] as const
+  })
 
   function runLayout() {
     cy?.layout(makeLayout(layoutName)).run()
