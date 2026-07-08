@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { store } from './lib/store.svelte'
   import { parseOntologyFile, listOntologyFiles, loadOntology } from './lib/api'
-  import { t, locale, initLocale, setLocale } from './lib/i18n'
+  import { t, i18n, initLocale, setLocale } from './lib/i18n.svelte.ts'
   import GraphView from './lib/GraphView.svelte'
   import Sidebar from './lib/Sidebar.svelte'
   import DetailsPanel from './lib/DetailsPanel.svelte'
@@ -67,7 +67,7 @@
 
   const stats = $derived(store.ontology?.stats)
   const chips = $derived.by(() => {
-    void locale // track locale changes for reactivity
+    void i18n.locale // track locale changes for reactivity
     return stats
       ? [
           { label: t('stats.classes'), value: stats.classes, color: 'bg-klass' },
@@ -117,18 +117,18 @@
     <div class="ml-auto flex items-center gap-1 mr-2">
       <button
         class="rounded px-1.5 py-1 text-[11px] font-medium transition-colors"
-        class:bg-klass={locale === 'en'}
-        class:text-canvas={locale === 'en'}
-        class:text-muted={locale !== 'en'}
-        class:hover:text-ink={locale !== 'en'}
+        class:bg-klass={i18n.locale === 'en'}
+        class:text-canvas={i18n.locale === 'en'}
+        class:text-muted={i18n.locale !== 'en'}
+        class:hover:text-ink={i18n.locale !== 'en'}
         onclick={() => setLocale('en')}>EN</button
       >
       <button
         class="rounded px-1.5 py-1 text-[11px] font-medium transition-colors"
-        class:bg-klass={locale === 'zh'}
-        class:text-canvas={locale === 'zh'}
-        class:text-muted={locale !== 'zh'}
-        class:hover:text-ink={locale !== 'zh'}
+        class:bg-klass={i18n.locale === 'zh'}
+        class:text-canvas={i18n.locale === 'zh'}
+        class:text-muted={i18n.locale !== 'zh'}
+        class:hover:text-ink={i18n.locale !== 'zh'}
         onclick={() => setLocale('zh')}>中</button
       >
     </div>

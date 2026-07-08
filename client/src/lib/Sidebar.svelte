@@ -1,6 +1,6 @@
 <script lang="ts">
   import { store, select, prettify } from './store.svelte'
-  import { t } from './i18n'
+  import { t } from './i18n.svelte.ts'
   import type { OwlClass } from './types'
 
   let tab = $state<'hierarchy' | 'classes' | 'properties' | 'individuals'>('hierarchy')

@@ -3,7 +3,7 @@
   import cytoscape from 'cytoscape'
   import { store, select } from './store.svelte'
   import { buildElements, cyStyle, makeLayout } from './graph'
-  import { t, locale } from './i18n'
+  import { t, i18n } from './i18n.svelte.ts'
 
   let container: HTMLDivElement
   let cy: cytoscape.Core | undefined
@@ -11,7 +11,7 @@
   let lastFocusNonce = -1
 
   const edgeLegend = $derived.by(() => {
-    void locale // track locale changes for reactivity
+    void i18n.locale // track locale changes for reactivity
     return [
       { type: 'subClassOf', key: 'subClassOf', color: '#5b6784', label: t('graph.subClassOf') },
       { type: 'restriction', key: 'restriction', color: '#f472b6', label: t('graph.restriction') },

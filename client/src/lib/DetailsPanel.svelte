@@ -1,6 +1,6 @@
 <script lang="ts">
   import { store, select, classById, propertyById, individualById, nameOf, prettify } from './store.svelte'
-  import { t } from './i18n'
+  import { t } from './i18n.svelte.ts'
   import type { EntityKind } from './types'
 
   const sel = $derived(store.selection)
