@@ -38,6 +38,7 @@ app.UseStaticFiles();
 
 var parser = app.Services.GetRequiredService<OntologyParser>();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
+var ontologyCache = new System.Collections.Concurrent.ConcurrentDictionary<string, OntologyDto>();
  
 string? ResolveOntologyDir()
 {
@@ -146,6 +147,38 @@ app.MapGet("/api/ontology/files", () =>
 
     return Results.Ok(new { files });
 });
+
+app.MapGet("/api/ontology/load", (string file) =>
+{
+    if (string.IsNullOrWhiteSpace(file) || file.Contains("..") || file.Contains('/') || file.Contains('\\'))
+        return Results.BadRequest(new { error = "Invalid file name." });
+
+    if (ontologyCache.TryGetValue(file, out var cached))
+        return Results.Ok(cached);
+
+    var dir = ResolveOntologyDir();
+    if (dir == null)
+        return Results.NotFound(new { error = "Ontology directory not found." });
+
+    var path = Path.Combine(dir, file);
+    if (!File.Exists(path))
+        return Results.NotFound(new { error = $"File '{file}' not found." });
+
+    try
+    {
+        logger.LogInformation("Parsing ontology: {Path}", path);
+        var dto = parser.ParseFile(path);
+        ontologyCache[file] = dto;
+        return Results.Ok(dto);
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Failed to parse ontology {File}", file);
+        return Results.BadRequest(new { error = $"Could not parse '{file}': {ex.Message}" });
+    }
+}).Produces<OntologyDto>(StatusCodes.Status200OK)
+  .Produces(StatusCodes.Status400BadRequest)
+  .Produces(StatusCodes.Status404NotFound);
 
 // SPA fallback: any non-API route returns index.html so client-side routing works.
 app.MapFallbackToFile("index.html");
