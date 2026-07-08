@@ -1,85 +1,33 @@
-// Mirrors the JSON contracts emitted by the ASP.NET API (see server/Models/OntologyDtos.cs).
+// Auto-generated from server DTOs via OpenAPI spec.
+// Run `npm run gentypes` (with server running on :5174) to regenerate.
+// Client-only types (Selection, GraphFilters) are defined below.
 
-export interface OntologyMeta {
-  iri: string | null
-  title: string | null
-  comment: string | null
-  sourceName: string
-  imports: string[]
-}
+import type { components } from './types.generated'
 
-export interface Restriction {
-  onProperty: string | null
-  onPropertyName: string | null
-  kind: 'some' | 'all' | 'value' | 'min' | 'max' | 'exactly' | string
-  filler: string | null
-  fillerName: string | null
-  cardinality: number | null
-  display: string
-}
+/**
+ * Recursively convert OpenAPI-generated types (all-optional, all-nullable)
+ * into the concrete shape the C# server actually emits.  The server always
+ * sends every field and C# `= ""` / `= new()` defaults mean scalars and
+ * arrays are never null at runtime.
+ */
+type Solid<T> = T extends (infer U)[]
+  ? Solid<U>[]
+  : T extends object
+    ? { [K in keyof T]-?: Solid<NonNullable<T[K]>> }
+    : NonNullable<T>
 
-export interface OwlClass {
-  id: string
-  name: string
-  label: string | null
-  comment: string | null
-  subClassOf: string[]
-  disjointWith: string[]
-  equivalentClasses: string[]
-  restrictions: Restriction[]
-  instanceCount: number
-  declared: boolean
-}
+// ---- DTO types (mirrored from server/Models/OntologyDtos.cs) -----------------
 
-export interface OwlProperty {
-  id: string
-  name: string
-  label: string | null
-  comment: string | null
-  kind: 'object' | 'datatype' | 'annotation'
-  domains: string[]
-  ranges: string[]
-  inverseOf: string | null
-  subPropertyOf: string[]
-  characteristics: string[]
-}
+export type OntologyMeta   = Solid<components['schemas']['OntologyMeta']>
+export type Restriction    = Solid<components['schemas']['RestrictionDto']>
+export type OwlClass       = Solid<components['schemas']['OwlClassDto']>
+export type OwlProperty    = Solid<components['schemas']['OwlPropertyDto']>
+export type Assertion      = Solid<components['schemas']['AssertionDto']>
+export type OwlIndividual  = Solid<components['schemas']['OwlIndividualDto']>
+export type Stats          = Solid<components['schemas']['StatsDto']>
+export type Ontology       = Solid<components['schemas']['OntologyDto']>
 
-export interface Assertion {
-  property: string
-  propertyName: string
-  value: string
-  valueName: string | null
-  datatype: string | null
-  isObject: boolean
-}
-
-export interface OwlIndividual {
-  id: string
-  name: string
-  label: string | null
-  comment: string | null
-  types: string[]
-  assertions: Assertion[]
-}
-
-export interface Stats {
-  classes: number
-  objectProperties: number
-  datatypeProperties: number
-  annotationProperties: number
-  individuals: number
-  restrictions: number
-  disjointAxioms: number
-  subClassAxioms: number
-}
-
-export interface Ontology {
-  meta: OntologyMeta
-  classes: OwlClass[]
-  properties: OwlProperty[]
-  individuals: OwlIndividual[]
-  stats: Stats
-}
+// ---- Client-only types --------------------------------------------------------
 
 export type EntityKind = 'class' | 'property' | 'individual'
 

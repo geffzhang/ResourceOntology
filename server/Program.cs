@@ -4,6 +4,16 @@ using ResourceOntology.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<OntologyParser>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "Resource Ontology API",
+        Version = "v1",
+        Description = "Parse and explore OWL ontologies."
+    });
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("dev", policy => policy
@@ -15,6 +25,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors("dev");
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Serve the built Svelte SPA (client/dist copied into wwwroot) in production.
 app.UseDefaultFiles();
@@ -59,7 +75,8 @@ app.MapGet("/api/ontology/default", () =>
     return dto is null
         ? Results.NotFound(new { error = "Bundled ontology (ontology/Resource.owl) was not found." })
         : Results.Ok(dto);
-});
+}).Produces<OntologyDto>(StatusCodes.Status200OK)
+  .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet("/api/ontology/source", () =>
 {
@@ -94,7 +111,8 @@ app.MapPost("/api/ontology/parse", async (HttpRequest request) =>
         logger.LogWarning(ex, "Failed to parse uploaded ontology {Name}", name);
         return Results.BadRequest(new { error = $"Could not parse '{name}': {ex.Message}" });
     }
-});
+}).Produces<OntologyDto>(StatusCodes.Status200OK)
+  .Produces(StatusCodes.Status400BadRequest);
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
