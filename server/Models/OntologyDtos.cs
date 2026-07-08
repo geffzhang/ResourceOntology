@@ -106,3 +106,30 @@ public class OntologyDto
     public List<OwlIndividualDto> Individuals { get; set; } = new();
     public StatsDto Stats { get; set; } = new();
 }
+
+public class OntologyFileEntry
+{
+    public string Name { get; set; } = "";
+    public string DisplayName { get; set; } = "";
+}
+
+public class OntologyFileList
+{
+    public List<OntologyFileEntry> Files { get; set; } = new();
+}
+
+public class HealthDto
+{
+    public string Status { get; set; } = "";
+}
+
+[System.Text.Json.Serialization.JsonSerializable(typeof(OntologyDto))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(OntologyFileList))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(HealthDto))]
+[System.Text.Json.Serialization.JsonSerializable(typeof(ErrorDto))]
+internal partial class AppJsonContext : System.Text.Json.Serialization.JsonSerializerContext { }
+
+public class ErrorDto
+{
+    public string Error { get; set; } = "";
+}

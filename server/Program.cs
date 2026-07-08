@@ -3,6 +3,11 @@ using ResourceOntology.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ConfigureHttpJsonOptions(o =>
+{
+    o.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
+});
+
 builder.Services.AddSingleton<OntologyParser>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -85,24 +90,25 @@ app.MapPost("/api/ontology/parse", async (HttpRequest request) =>
 }).Produces<OntologyDto>(StatusCodes.Status200OK)
   .Produces(StatusCodes.Status400BadRequest);
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/api/health", () => Results.Ok(new HealthDto { Status = "ok" }));
 
 app.MapGet("/api/ontology/files", () =>
 {
     var dir = ResolveOntologyDir();
     if (dir == null)
-        return Results.Ok(new { files = Array.Empty<object>() });
+        return Results.Ok(new OntologyFileList());
 
-    var files = Directory.GetFiles(dir, "*.owl")
-        .Select(f => new
+    var list = new OntologyFileList();
+    list.Files = Directory.GetFiles(dir, "*.owl")
+        .Select(f => new OntologyFileEntry
         {
-            name = Path.GetFileName(f),
-            displayName = Path.GetFileNameWithoutExtension(f)
+            Name = Path.GetFileName(f),
+            DisplayName = Path.GetFileNameWithoutExtension(f)
         })
-        .OrderBy(f => f.displayName)
+        .OrderBy(f => f.DisplayName)
         .ToList();
 
-    return Results.Ok(new { files });
+    return Results.Ok(list);
 });
 
 app.MapGet("/api/ontology/load", (string file) =>
