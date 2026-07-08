@@ -6,6 +6,7 @@ const enFallback: Record<string, string> = {
   'app.noFiles': 'No ontology files found',
   'app.openFile': 'Open OWL file…',
   'app.loading': 'Parsing ontology…',
+  'app.dropHint': 'Drop an .owl file to visualise',
   'stats.classes': 'Classes',
   'stats.objProps': 'Obj. props',
   'stats.dataProps': 'Data props',

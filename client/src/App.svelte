@@ -185,7 +185,7 @@
 {#if dragging}
   <div class="pointer-events-none fixed inset-0 z-50 grid place-items-center bg-canvas/80">
     <div class="rounded-xl border-2 border-dashed border-klass px-10 py-8 text-lg text-klass">
-      Drop an .owl file to visualise
+      {t('app.dropHint')}
     </div>
   </div>
 {/if}

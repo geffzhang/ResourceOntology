@@ -61,7 +61,7 @@
     </div>
   {:else}
     <div class="border-b border-edge p-3">
-      <div class="text-[10px] uppercase tracking-wide text-muted">{sel.kind}</div>
+      <div class="text-[10px] uppercase tracking-wide text-muted">{sel.kind === 'class' ? t('sidebar.classes') : sel.kind === 'property' ? t('sidebar.properties') : t('sidebar.instances')}</div>
       <div class="text-lg font-semibold text-ink">{nameOf(sel.id)}</div>
       <div class="mt-1 break-all font-mono text-[10px] text-muted">{sel.id}</div>
     </div>
