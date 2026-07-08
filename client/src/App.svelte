@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { store } from './lib/store.svelte'
   import { parseOntologyFile, listOntologyFiles, loadOntology } from './lib/api'
+  import { t, locale, initLocale, setLocale } from './lib/i18n'
   import GraphView from './lib/GraphView.svelte'
   import Sidebar from './lib/Sidebar.svelte'
   import DetailsPanel from './lib/DetailsPanel.svelte'
@@ -57,6 +58,7 @@
   }
 
   onMount(async () => {
+    await initLocale()
     await initFiles()
     if (store.fileList.length > 0) {
       await selectFile(store.fileList[0].name)
@@ -64,18 +66,19 @@
   })
 
   const stats = $derived(store.ontology?.stats)
-  const chips = $derived(
-    stats
+  const chips = $derived.by(() => {
+    void locale // track locale changes for reactivity
+    return stats
       ? [
-          { label: 'Classes', value: stats.classes, color: 'bg-klass' },
-          { label: 'Obj. props', value: stats.objectProperties, color: 'bg-objprop' },
-          { label: 'Data props', value: stats.datatypeProperties, color: 'bg-datatype' },
-          { label: 'Instances', value: stats.individuals, color: 'bg-individual' },
-          { label: 'Restrictions', value: stats.restrictions, color: 'bg-restriction' },
-          { label: 'Disjoint', value: stats.disjointAxioms, color: 'bg-disjoint' },
+          { label: t('stats.classes'), value: stats.classes, color: 'bg-klass' },
+          { label: t('stats.objProps'), value: stats.objectProperties, color: 'bg-objprop' },
+          { label: t('stats.dataProps'), value: stats.datatypeProperties, color: 'bg-datatype' },
+          { label: t('stats.instances'), value: stats.individuals, color: 'bg-individual' },
+          { label: t('stats.restrictions'), value: stats.restrictions, color: 'bg-restriction' },
+          { label: t('stats.disjoint'), value: stats.disjointAxioms, color: 'bg-disjoint' },
         ]
       : []
-  )
+  })
 </script>
 
 <svelte:window
@@ -93,9 +96,9 @@
     <div class="flex items-center gap-2">
       <div class="grid h-8 w-8 place-items-center rounded-md bg-klass/20 text-lg text-klass">◈</div>
       <div>
-        <h1 class="text-sm font-semibold leading-tight text-ink">Resource Ontology Visualiser</h1>
+        <h1 class="text-sm font-semibold leading-tight text-ink">{t('app.title')}</h1>
         <p class="text-[11px] leading-tight text-muted">
-          {store.ontology?.meta.sourceName ?? 'Describing Visualization Resources'}
+          {store.ontology?.meta.sourceName ?? t('app.fallback')}
         </p>
       </div>
     </div>
@@ -111,6 +114,24 @@
       {/each}
     </div>
 
+    <div class="ml-auto flex items-center gap-1 mr-2">
+      <button
+        class="rounded px-1.5 py-1 text-[11px] font-medium transition-colors"
+        class:bg-klass={locale === 'en'}
+        class:text-canvas={locale === 'en'}
+        class:text-muted={locale !== 'en'}
+        class:hover:text-ink={locale !== 'en'}
+        onclick={() => setLocale('en')}>EN</button
+      >
+      <button
+        class="rounded px-1.5 py-1 text-[11px] font-medium transition-colors"
+        class:bg-klass={locale === 'zh'}
+        class:text-canvas={locale === 'zh'}
+        class:text-muted={locale !== 'zh'}
+        class:hover:text-ink={locale !== 'zh'}
+        onclick={() => setLocale('zh')}>中</button
+      >
+    </div>
     <div class="ml-auto flex items-center gap-2">
       {#if store.fileList.length > 0}
         <select
@@ -126,11 +147,11 @@
           {/each}
         </select>
       {:else}
-        <span class="text-xs text-muted">No ontology files found</span>
+        <span class="text-xs text-muted">{t('app.noFiles')}</span>
       {/if}
       <button
         class="rounded-md bg-klass px-3 py-1.5 text-xs font-medium text-canvas hover:opacity-90"
-        onclick={() => fileInput.click()}>Open OWL file…</button
+        onclick={() => fileInput.click()}>{t('app.openFile')}</button
       >
       <input bind:this={fileInput} type="file" accept=".owl,.rdf,.xml" class="hidden" onchange={onPick} />
     </div>
@@ -142,7 +163,7 @@
       <div class="absolute inset-0 z-20 grid place-items-center bg-canvas/70 backdrop-blur-sm">
         <div class="flex items-center gap-3 text-muted">
           <span class="h-5 w-5 animate-spin rounded-full border-2 border-edge border-t-klass"></span>
-          Parsing ontology…
+          {t('app.loading')}
         </div>
       </div>
     {/if}
